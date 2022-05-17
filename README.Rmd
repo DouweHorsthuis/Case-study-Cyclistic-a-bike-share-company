@@ -1,0 +1,53 @@
+---
+title: 'Case Study: Cyclistic a bike share company. Using R'
+author: "Douwe John Horsthuis"
+date: "5/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## steps taken
+1 - download the last 12 months worth of data
+2- unzip all the excel files so they can be uploaded into an sql database (bigquery)
+3 - 202009-divvy-tripdata does not work
+4- realized it doesn't work quickly so instead use google drive to upload it both for space purposes and speed
+5- create a sql statement to get the data
+6- made sure that old and new data have the same data types by updating the old datatypes so that new datasets can be added easily.
+
+```{r packages & library}
+#install.packages("bigrquery")
+library(bigrquery)1
+library(readr)
+```
+
+
+```{r}
+db <- dbConnect(
+  bigquery(), 
+  dataset = 'cyclistic-a-bike-share-company.bikedata.combined data', 
+  project = 'cyclistic-a-bike-share-company', 
+  use_legacy_sql = FALSE
+)
+```
+
+
+```{sql connection=db, output.var = "sql"}
+--# Store the project ID
+projectid = "cyclistic-a-bike-share-company"
+
+--# Set your query
+sql <- SELECT * FROM "cyclistic-a-bike-share-company.bikedata.combined data" LIMIT 10
+
+--# Run the query and store the data in a tibble
+tb <- bq_project_query(projectid, sql)
+
+--# Print 10 rows of the data
+bq_table_download(tb, n_max = 10)
+```
+```{r Loading SQL file}
+data    <- read_csv("data/sql_query_all.csv")
+```
+
