@@ -5,7 +5,7 @@ Douwe John Horsthuis
 
 # Cyclistic bike-share
 
-![](README_files/figure-gfm/logo.PNG)
+![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/logo.PNG)
 
 ## Case study by [Douwe Horsthuis](https://github.com/DouweHorsthuis) for the Google Data Analytics Capstone
 
@@ -16,19 +16,29 @@ available data that can be found
 
 ## steps taken before this using R
 
-1 - download the last 12 months worth of data 2 - unzip all the excel
-files so they can be uploaded into an sql database (bigquery) 3 -
-202009-divvy-tripdata does not work 4- realized it doesn’t work quickly
-so instead use google drive to upload it both for space purposes and
-speed 5- create a sql statement to get the data 6- made sure that old
-and new data have the same data types by updating the old datatypes so
-that new datasets can be added easily.
+1.  download the last 12 months worth of data
+
+2.  unzip all the excel files so they can be uploaded into an sql
+    database (bigquery)
+
+3.  202009-divvy-tripdata does not work
+
+4.  realized it doesn’t work quickly so instead use google drive to
+    upload it both for space purposes and speed
+
+5.  create a sql statement to get the data
+
+6.  made sure that old and new data have the same data types by updating
+    the old datatypes so that new datasets can be added easily.
 
 [**The R code can be found
 here**](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/code.R)
 
-It’s possible to get the dataset directly from google’s bigquery. Using
-the code below. However I personally prefer using the csv file. So
+It’s possible to get the dataset directly from google’s bigquery.
+However I personally prefer using the csv file. So that is what the code
+uses.
+
+Here you will see the first summary of the data:
 
 | ride_id          | rideable_type | started_at              | ended_at                | start_station_name             | f0\_ | end_station_name             | f1\_ | start_lat | start_lng |  end_lat |   end_lng | member_casual |
 |:-----------------|:--------------|:------------------------|:------------------------|:-------------------------------|:-----|:-----------------------------|:-----|----------:|----------:|---------:|----------:|:--------------|
@@ -39,17 +49,45 @@ the code below. However I personally prefer using the csv file. So
 | 197B08AFFA83A458 | docked_bike   | 2020-08-08 10:07:38 UTC | 2020-08-08 10:26:48 UTC | Drake Ave & Fullerton Ave      | 503  | Marshfield Ave & Cortland St | 58   |  41.92440 | -87.71544 | 41.91602 | -87.66888 | member        |
 | A3489E65403474A6 | docked_bike   | 2020-08-08 10:07:31 UTC | 2020-08-08 10:23:11 UTC | Chicago Ave & Washington St    | 597  | Evanston Civic Center        | 661  |  42.03256 | -87.67910 | 42.05704 | -87.68655 | casual        |
 
+    ## 
+    ## 
+    ## Total amount of unique ride IDs
+
     ## [1] 2933776
+
+    ## 
+    ## 
+    ## Types of bikes
 
     ## [1] "docked_bike"   "electric_bike" "classic_bike"
 
+    ## 
+    ## 
+    ## Amount of station names
+
     ## [1] 705
+
+    ## 
+    ## 
+    ## Amount of start point
 
     ## [1] 1258
 
+    ## 
+    ## 
+    ## Amount of end stations
+
     ## [1] 705
 
+    ## 
+    ## 
+    ## Amount of end points
+
     ## [1] 1259
+
+    ## 
+    ## 
+    ## Types of Customer
 
     ## [1] "casual" "member"
 
@@ -62,7 +100,7 @@ that
 , but that both f0 and f1 are not the same length and not the same as
 eachother. Because of the we leave the ID alone
 
-# questions about the data
+# Questions about the data
 
 1.  How do annual members and casual riders use Cyclistic bikes
     differently?
@@ -70,7 +108,7 @@ eachother. Because of the we leave the ID alone
 3.  How can Cyclistic use digital media to influence casual riders to
     become members?
 
-## How to answer the questions / can we answers the questiosn with the current data
+## How to answer the questions / can we answers the questions with the current data
 
 1.  split the data in 2 groups see if there are different trends
 2.  see if there is something that is the difference that causes people
@@ -88,15 +126,9 @@ create 2 subgroups.
 
 ## describing the data after creating the 2 groups
 
-``` r
-cat("These are the casual riders\n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders
-
-``` r
-describe(data_casual$rideable_type)
-```
 
     ## data_casual$rideable_type 
     ##        n  missing distinct 
@@ -106,20 +138,12 @@ describe(data_casual$rideable_type)
     ## Frequency          70630        944809        175854
     ## Proportion         0.059         0.793         0.148
 
-``` r
-describe(data_casual$start_station_name)
-```
-
     ## data_casual$start_station_name 
     ##        n  missing distinct 
     ##  1158647    32646      693 
     ## 
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
-
-``` r
-describe(data_casual$end_station_name)
-```
 
     ## data_casual$end_station_name 
     ##        n  missing distinct 
@@ -128,16 +152,8 @@ describe(data_casual$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-summary(data_casual$ride_length)
-```
-
     ##   Length    Class     Mode 
     ##  1191293 difftime  numeric
-
-``` r
-stat.desc(data_casual$ride_length)
-```
 
     ##                             x
     ## nbr.val       1191293.0000000
@@ -155,17 +171,11 @@ stat.desc(data_casual$ride_length)
     ## std.dev           447.9478907
     ## coef.var           10.1013676
 
-``` r
-cat("\n\nThese are the members\n\n\n\n")
-```
-
+    ## 
+    ## 
     ## 
     ## 
     ## These are the members
-
-``` r
-describe(data_member$rideable_type)
-```
 
     ## data_member$rideable_type 
     ##        n  missing distinct 
@@ -175,20 +185,12 @@ describe(data_member$rideable_type)
     ## Frequency         248861       1209054        284777
     ## Proportion         0.143         0.694         0.163
 
-``` r
-describe(data_member$start_station_name)
-```
-
     ## data_member$start_station_name 
     ##        n  missing distinct 
     ##  1687702    54990      695 
     ## 
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
-
-``` r
-describe(data_member$end_station_name)
-```
 
     ## data_member$end_station_name 
     ##        n  missing distinct 
@@ -197,16 +199,8 @@ describe(data_member$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-summary(data_member$ride_length)
-```
-
     ##   Length    Class     Mode 
     ##  1742692 difftime  numeric
-
-``` r
-stat.desc(data_member$ride_length)
-```
 
     ##                             x
     ## nbr.val       1742692.0000000
@@ -224,7 +218,7 @@ stat.desc(data_member$ride_length)
     ## std.dev           386.2696368
     ## coef.var           34.3539912
 
-of interest:
+**Of interest:**
 
 1.  for both groups the dock_bike is the most used by far (69% & 79%)  
 2.  Both group have the same most used starts/stops and least used
@@ -239,42 +233,7 @@ of interest:
 4.  the mean (11.2/44.34) and median (12/22) are very different for
     (members/casual)
 
-**Next we are looking how much each group rode**
-
-``` r
-#first organize date by month 
-data_casual$start_date<-as.Date(data_casual$start_date,format="%Y-%m-%d")
-data_casual$ones<-1
-data_casual_grouped <- data_casual %>%
-  group_by(start_date, rideable_type) %>%
-  summarise(ones=sum(ones))
-
-data_member$start_date<-as.Date(data_member$start_date,format="%Y-%m-%d")
-data_member$ones<-1
-data_member_grouped <- data_member %>%
-  group_by(start_date, rideable_type) %>%
-  summarise(ones=sum(ones))
-
-
-
-
-fig1<- ggplot(data=data_casual_grouped, aes(x=start_date, y=ones, color=rideable_type))+
-  labs(x = "Time", y = "Amount of rides", title = "Casual Riders", color="Types of Bikes") +
-  geom_point()+
-  geom_smooth(formula = y ~ x, method = "loess")+
-  ylim(0,10000)+
-  scale_color_manual(labels = c("Classic bike", "Docked bike", "Electric Bike"), values = c("green", "red", "blue"))
-
-
-fig2<- ggplot(data=data_member_grouped, aes(x=start_date, y=ones, color=rideable_type))+
-    labs(x = "Time", y = "Amount of rides", title = "Members", color="Types of Bikes") +
-  geom_point()+
-  geom_smooth(formula = y ~ x, method = "loess")+
-  ylim(0,10000)+
-  scale_color_manual(labels = c("Classic bike", "Docked bike", "Electric Bike"), values = c("green", "red", "blue"))
-
-grid.arrange(fig1,fig2,top=textGrob("Amount of rides per date", gp=gpar(fontsize=20,font=8)))
-```
+## Next we are looking how much tripes each group made
 
 ![](README_files/figure-gfm/by%20time-1.png)<!-- -->
 
@@ -286,17 +245,7 @@ docked_bike to classic_bike. So we need to combine these
 But first we are going to try to find out more about the outliers for
 this we plot them using the boxplot function
 
-``` r
-boxplot(data_member$ride_length, main="Members")
-```
-
-![](README_files/figure-gfm/looking%20for%20outlier-1.png)<!-- -->
-
-``` r
-boxplot(data_casual$ride_length, main="Casual Riders")
-```
-
-![](README_files/figure-gfm/looking%20for%20outlier-2.png)<!-- -->
+![](README_files/figure-gfm/looking%20for%20outlier-1.png)<!-- -->![](README_files/figure-gfm/looking%20for%20outlier-2.png)<!-- -->
 
 We see that both groups have only a few negative outlier and a bunch of
 positive ones. Before deleting them I want to take a look at a couple of
@@ -329,17 +278,45 @@ packages
 | E14E9E37AD877B95 | docked_bike   | 2020-04-25 13:32:35 UTC | 2020-04-25 13:46:59 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
 | 915EAAD3924C4921 | docked_bike   | 2020-04-11 15:05:47 UTC | 2020-04-11 15:23:24 UTC | Walsh Park         | 628              | California Ave & North Ave         | 276            |   41.9146 |   -87.668 | 41.9104 | -87.6972 | casual        |
 
+    ## 
+    ## 
+    ## Total amount of unique ride IDs
+
     ## [1] 2794093
+
+    ## 
+    ## 
+    ## Types of bikes
 
     ## [1] "docked_bike"   "electric_bike" "classic_bike"
 
+    ## 
+    ## 
+    ## Amount of station names
+
     ## [1] 701
+
+    ## 
+    ## 
+    ## Amount of start point
 
     ## [1] 1256
 
+    ## 
+    ## 
+    ## Amount of end stations
+
     ## [1] 703
 
+    ## 
+    ## 
+    ## Amount of end points
+
     ## [1] 1257
+
+    ## 
+    ## 
+    ## Types of Customer
 
     ## [1] "casual" "member"
 
@@ -548,9 +525,8 @@ about unable to dock a bike.
 
 # Creating a map
 
-first things to do is create separate data structures for different
-`rideable_types` second thing plot it by month (it probably will take
-way too long if it’s in one go, and it makes it updateable)
+First things to do is create separate data structures for different
+`rideable_types` second thing plot it by month.
 
 ![](README_files/figure-gfm/plotting%20out%20map-1.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-2.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-3.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-4.png)<!-- -->
 
@@ -565,6 +541,9 @@ of the bikes over the course of the year For this we plot the data as a
 function of time and keep it divided by group
 
 ![](README_files/figure-gfm/by%20time%202-1.png)<!-- -->
+
+This shows us that the member group uses the bikes more. This counts for
+both types of bikes.
 
 # Answering questions
 
