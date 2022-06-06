@@ -5,7 +5,7 @@ Douwe John Horsthuis
 
 # Cyclistic bike-share
 
-![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/logo.PNG)
+![](README_files/figure-gfm/logo.PNG)
 
 ## Case study by [Douwe Horsthuis](https://github.com/DouweHorsthuis) for the Google Data Analytics Capstone
 
@@ -24,190 +24,43 @@ speed 5- create a sql statement to get the data 6- made sure that old
 and new data have the same data types by updating the old datatypes so
 that new datasets can be added easily.
 
-``` r
-#install.packages("bigrquery")
-library(bigrquery)
-library(readr) #for csv
-library(knitr) #for kable
-library(dplyr) #for basic stuff like count
-```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
-library(Hmisc) #great library for describing dataframes with strings 
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: survival
-
-    ## Loading required package: Formula
-
-    ## Loading required package: ggplot2
-
-    ## 
-    ## Attaching package: 'Hmisc'
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     src, summarize
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     format.pval, units
-
-``` r
-library(pastecs) # to get some easy statistics
-```
-
-    ## 
-    ## Attaching package: 'pastecs'
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     first, last
-
-``` r
-library(gridExtra)#for plotting plots in a grid
-```
-
-    ## 
-    ## Attaching package: 'gridExtra'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     combine
-
-``` r
-library(grid)
-library(ggplot2)#plots
-library(lubridate)#for speeding up data as date (4.1X quicker on my laptop)
-```
-
-    ## 
-    ## Attaching package: 'lubridate'
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     date, intersect, setdiff, union
-
-``` r
-library(tidyverse)#general aesthetics 
-```
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
-
-    ## v tibble  3.1.3     v stringr 1.4.0
-    ## v tidyr   1.1.3     v forcats 0.5.1
-    ## v purrr   0.3.4
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x lubridate::as.difftime() masks base::as.difftime()
-    ## x gridExtra::combine()     masks dplyr::combine()
-    ## x lubridate::date()        masks base::date()
-    ## x tidyr::extract()         masks pastecs::extract()
-    ## x dplyr::filter()          masks stats::filter()
-    ## x pastecs::first()         masks dplyr::first()
-    ## x lubridate::intersect()   masks base::intersect()
-    ## x dplyr::lag()             masks stats::lag()
-    ## x pastecs::last()          masks dplyr::last()
-    ## x lubridate::setdiff()     masks base::setdiff()
-    ## x Hmisc::src()             masks dplyr::src()
-    ## x Hmisc::summarize()       masks dplyr::summarize()
-    ## x lubridate::union()       masks base::union()
-
-``` r
-library(sf)#for maps
-```
-
-    ## Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
-
-``` r
-library(ggmap)#googlemaps
-```
-
-    ## Google's Terms of Service: https://cloud.google.com/maps-platform/terms/.
-
-    ## Please cite ggmap if you use it! See citation("ggmap") for details.
-
-``` r
-library(viridis)#colors for heat map
-```
-
-    ## Loading required package: viridisLite
+[**The R code can be found
+here**](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/code.R)
 
 It’s possible to get the dataset directly from google’s bigquery. Using
 the code below. However I personally prefer using the csv file. So
 
-``` r
-kable(head(data))
-```
-
-| ride\_id         | rideable\_type | started\_at             | ended\_at               | start\_station\_name           | f0\_ | end\_station\_name           | f1\_ | start\_lat | start\_lng | end\_lat |  end\_lng | member\_casual |
-|:-----------------|:---------------|:------------------------|:------------------------|:-------------------------------|:-----|:-----------------------------|:-----|-----------:|-----------:|---------:|----------:|:---------------|
-| 61544BB47B9A7813 | docked\_bike   | 2020-08-08 10:07:41 UTC | 2020-08-08 10:18:05 UTC | Pine Grove Ave & Waveland Ave  | 232  | Broadway & Belmont Ave       | 296  |   41.94947 |  -87.64645 | 41.94011 | -87.64545 | casual         |
-| F3B969AB01DCBDA3 | docked\_bike   | 2020-08-08 10:07:41 UTC | 2020-08-08 10:32:43 UTC | Lake Shore Dr & Wellington Ave | 157  | McClurg Ct & Erie St         | 142  |   41.93669 |  -87.63683 | 41.89450 | -87.61785 | member         |
-| E54EB988E676193B | docked\_bike   | 2020-08-08 10:07:40 UTC | 2020-08-08 10:35:02 UTC | Franklin St & Illinois St      | 672  | Southport Ave & Clybourn Ave | 307  |   41.89102 |  -87.63548 | 41.92077 | -87.66371 | member         |
-| 9CECBFAE7A62C47E | docked\_bike   | 2020-08-08 10:07:38 UTC | 2020-08-08 18:22:49 UTC | Clark St & Lincoln Ave         | 141  | Seeley Ave & Roscoe St       | 308  |   41.91569 |  -87.63460 | 41.94340 | -87.67962 | casual         |
-| 197B08AFFA83A458 | docked\_bike   | 2020-08-08 10:07:38 UTC | 2020-08-08 10:26:48 UTC | Drake Ave & Fullerton Ave      | 503  | Marshfield Ave & Cortland St | 58   |   41.92440 |  -87.71544 | 41.91602 | -87.66888 | member         |
-| A3489E65403474A6 | docked\_bike   | 2020-08-08 10:07:31 UTC | 2020-08-08 10:23:11 UTC | Chicago Ave & Washington St    | 597  | Evanston Civic Center        | 661  |   42.03256 |  -87.67910 | 42.05704 | -87.68655 | casual         |
-
-``` r
-length(unique(data$ride_id))
-```
+| ride_id          | rideable_type | started_at              | ended_at                | start_station_name             | f0\_ | end_station_name             | f1\_ | start_lat | start_lng |  end_lat |   end_lng | member_casual |
+|:-----------------|:--------------|:------------------------|:------------------------|:-------------------------------|:-----|:-----------------------------|:-----|----------:|----------:|---------:|----------:|:--------------|
+| 61544BB47B9A7813 | docked_bike   | 2020-08-08 10:07:41 UTC | 2020-08-08 10:18:05 UTC | Pine Grove Ave & Waveland Ave  | 232  | Broadway & Belmont Ave       | 296  |  41.94947 | -87.64645 | 41.94011 | -87.64545 | casual        |
+| F3B969AB01DCBDA3 | docked_bike   | 2020-08-08 10:07:41 UTC | 2020-08-08 10:32:43 UTC | Lake Shore Dr & Wellington Ave | 157  | McClurg Ct & Erie St         | 142  |  41.93669 | -87.63683 | 41.89450 | -87.61785 | member        |
+| E54EB988E676193B | docked_bike   | 2020-08-08 10:07:40 UTC | 2020-08-08 10:35:02 UTC | Franklin St & Illinois St      | 672  | Southport Ave & Clybourn Ave | 307  |  41.89102 | -87.63548 | 41.92077 | -87.66371 | member        |
+| 9CECBFAE7A62C47E | docked_bike   | 2020-08-08 10:07:38 UTC | 2020-08-08 18:22:49 UTC | Clark St & Lincoln Ave         | 141  | Seeley Ave & Roscoe St       | 308  |  41.91569 | -87.63460 | 41.94340 | -87.67962 | casual        |
+| 197B08AFFA83A458 | docked_bike   | 2020-08-08 10:07:38 UTC | 2020-08-08 10:26:48 UTC | Drake Ave & Fullerton Ave      | 503  | Marshfield Ave & Cortland St | 58   |  41.92440 | -87.71544 | 41.91602 | -87.66888 | member        |
+| A3489E65403474A6 | docked_bike   | 2020-08-08 10:07:31 UTC | 2020-08-08 10:23:11 UTC | Chicago Ave & Washington St    | 597  | Evanston Civic Center        | 661  |  42.03256 | -87.67910 | 42.05704 | -87.68655 | casual        |
 
     ## [1] 2933776
 
-``` r
-unique(data$rideable_type)
-```
-
     ## [1] "docked_bike"   "electric_bike" "classic_bike"
 
-``` r
-length(unique(data$start_station_name))
-```
-
     ## [1] 705
-
-``` r
-length(unique(data$f0_))
-```
 
     ## [1] 1258
 
-``` r
-length(unique(data$end_station_name))
-```
-
     ## [1] 705
-
-``` r
-length(unique(data$f1_))
-```
 
     ## [1] 1259
 
-``` r
-unique(data$member_casual)
-```
-
     ## [1] "casual" "member"
 
-Because
-length(unique(data$ride\_id)) == the full length of the data, we now know that every ride is unique and that there is no ID number for individual members in this data. We now know that there are 3 types of transportation "docked\_bike" "electric\_bike" "classic\_bike". We know that \`length(unique(data$start\_station\_name))`==`length(unique(data$end\_station\_name))\`==705
+Because `length(unique(data$ride_id))` == the full length of the data,
+we now know that every ride is unique and that there is no ID number for
+individual members in this data. We now know that there are 3 types of
+transportation “docked_bike” “electric_bike” “classic_bike”. We know
+that
+`length(unique(data$start_station_name))==length(unique(data$end_station_name))`==705
 , but that both f0 and f1 are not the same length and not the same as
-eachoter. Because of the we leave the ID alone
+eachother. Because of the we leave the ID alone
 
 # questions about the data
 
@@ -224,11 +77,14 @@ eachoter. Because of the we leave the ID alone
     to be in one group or another
 3.  not sure if answerable with the current data.
 
-# perpairing the data
+# Preparing the data
 
 To prepare the data there are some things we need to do before we can
-create 2 subgroups. 1. the dates are in the wrong class. 2. there is no
-ride length 3. TBD
+create 2 subgroups.
+
+1.  the dates are in the wrong class.
+2.  there is no ride length
+3.  TBD
 
 ## describing the data after creating the 2 groups
 
@@ -368,16 +224,22 @@ stat.desc(data_member$ride_length)
     ## std.dev           386.2696368
     ## coef.var           34.3539912
 
-of interest: 1. for both groups the dock\_bike is the most used by far
-(69% & 79%) 2. Both group have the same most used starts/stops and least
-used starts/stops. 3. There are minus times (in minutes) and the max
-time is 58720 minuts == 978 hours == 40 days - option 1 - get rid of all
-minus rides and outliers - option 2 - get rid of all minus riders but
-leave positive - option 3 - leave all but see how many of these exist 4.
-the mean (11.2/44.34) and median (12/22) are very different for
-(members/casual)
+of interest:
 
-We are looking how much each group wrote
+1.  for both groups the dock_bike is the most used by far (69% & 79%)  
+2.  Both group have the same most used starts/stops and least used
+    starts/stops  
+3.  There are minus times (in minutes) and the max time is 58720 minutes
+    == 978 hours == 40 days
+    -   option 1 - get rid of all minus rides and outliers
+
+    -   option 2 - get rid of all minus riders but leave positive
+
+    -   option 3 - leave all but see how many of these exist
+4.  the mean (11.2/44.34) and median (12/22) are very different for
+    (members/casual)
+
+**Next we are looking how much each group rode**
 
 ``` r
 #first organize date by month 
@@ -386,25 +248,20 @@ data_casual$ones<-1
 data_casual_grouped <- data_casual %>%
   group_by(start_date, rideable_type) %>%
   summarise(ones=sum(ones))
-```
 
-    ## `summarise()` has grouped output by 'start_date'. You can override using the `.groups` argument.
-
-``` r
 data_member$start_date<-as.Date(data_member$start_date,format="%Y-%m-%d")
 data_member$ones<-1
 data_member_grouped <- data_member %>%
   group_by(start_date, rideable_type) %>%
   summarise(ones=sum(ones))
-```
 
-    ## `summarise()` has grouped output by 'start_date'. You can override using the `.groups` argument.
 
-``` r
+
+
 fig1<- ggplot(data=data_casual_grouped, aes(x=start_date, y=ones, color=rideable_type))+
   labs(x = "Time", y = "Amount of rides", title = "Casual Riders", color="Types of Bikes") +
   geom_point()+
-  geom_smooth()+
+  geom_smooth(formula = y ~ x, method = "loess")+
   ylim(0,10000)+
   scale_color_manual(labels = c("Classic bike", "Docked bike", "Electric Bike"), values = c("green", "red", "blue"))
 
@@ -412,50 +269,36 @@ fig1<- ggplot(data=data_casual_grouped, aes(x=start_date, y=ones, color=rideable
 fig2<- ggplot(data=data_member_grouped, aes(x=start_date, y=ones, color=rideable_type))+
     labs(x = "Time", y = "Amount of rides", title = "Members", color="Types of Bikes") +
   geom_point()+
-  geom_smooth()+
+  geom_smooth(formula = y ~ x, method = "loess")+
   ylim(0,10000)+
   scale_color_manual(labels = c("Classic bike", "Docked bike", "Electric Bike"), values = c("green", "red", "blue"))
 
 grid.arrange(fig1,fig2,top=textGrob("Amount of rides per date", gp=gpar(fontsize=20,font=8)))
 ```
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+![](README_files/figure-gfm/by%20time-1.png)<!-- -->
 
-    ## Warning: Removed 23 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 23 rows containing missing values (geom_point).
-
-    ## Warning: Removed 12 rows containing missing values (geom_smooth).
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-    ## Warning: Removed 19 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 19 rows containing missing values (geom_point).
-
-    ## Warning: Removed 6 rows containing missing values (geom_smooth).
-
-![](README_files/figure-gfm/by%20time-1.png)<!-- --> We see here an
-issue, it seems like docked bikes are not existing after a certain date.
-When looking into the data, and figuring out how this could be the case,
-it seems like the company changed the name docked\_bike to
-classic\_bike. So we need to combine these
+We see here an issue, it seems like docked bikes are not existing after
+a certain date. When looking into the data, and figuring out how this
+could be the case, it seems like the company changed the name
+docked_bike to classic_bike. So we need to combine these
 
 But first we are going to try to find out more about the outliers for
 this we plot them using the boxplot function
 
 ``` r
-boxplot(data_member$ride_length)
+boxplot(data_member$ride_length, main="Members")
 ```
 
 ![](README_files/figure-gfm/looking%20for%20outlier-1.png)<!-- -->
 
 ``` r
-boxplot(data_casual$ride_length)
+boxplot(data_casual$ride_length, main="Casual Riders")
 ```
 
-![](README_files/figure-gfm/looking%20for%20outlier-2.png)<!-- --> We
-see that both groups have only a few negative outlier and a bunch of
+![](README_files/figure-gfm/looking%20for%20outlier-2.png)<!-- -->
+
+We see that both groups have only a few negative outlier and a bunch of
 positive ones. Before deleting them I want to take a look at a couple of
 specific once, just to see if there there isn’t just a mistake of
 oversight on my part.
@@ -477,111 +320,36 @@ data and running all the cleaning code we created again. We use
 `rm(list = ls())` for the cleaning so we do not need to reinstall the
 packages
 
-``` r
-rm(list = ls()) #clearing everything but packages
-data    <- read_csv("data/sql_query_all_updated.csv")
-```
-
-    ## Rows: 2794301 Columns: 13
-
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: ","
-    ## chr (9): ride_id, rideable_type, started_at, ended_at, start_station_name, s...
-    ## dbl (4): start_lat, start_lng, end_lat, end_lng
-
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-kable(head(data))
-```
-
-| ride\_id         | rideable\_type | started\_at             | ended\_at               | start\_station\_name | start\_station\_id | end\_station\_name                 | end\_station\_id | start\_lat | start\_lng | end\_lat | end\_lng | member\_casual |
-|:-----------------|:---------------|:------------------------|:------------------------|:---------------------|:-------------------|:-----------------------------------|:-----------------|-----------:|-----------:|---------:|---------:|:---------------|
-| CFB93A48F8739A87 | docked\_bike   | 2020-04-26 13:05:31 UTC | 2020-04-26 13:19:47 UTC | Walsh Park           | 628                | California Ave & Francis Pl (Temp) | 259              |    41.9146 |    -87.668 |  41.9185 | -87.6974 | casual         |
-| 57350116454F657E | docked\_bike   | 2020-04-27 13:03:24 UTC | 2020-04-27 13:16:12 UTC | Walsh Park           | 628                | California Ave & Francis Pl (Temp) | 259              |    41.9146 |    -87.668 |  41.9185 | -87.6974 | casual         |
-| F244A35DC2995411 | docked\_bike   | 2020-04-05 13:08:30 UTC | 2020-04-05 13:23:32 UTC | Walsh Park           | 628                | California Ave & Francis Pl (Temp) | 259              |    41.9146 |    -87.668 |  41.9185 | -87.6974 | casual         |
-| AF097D79FD811EC8 | docked\_bike   | 2020-04-18 13:26:42 UTC | 2020-04-18 13:42:45 UTC | Walsh Park           | 628                | California Ave & Francis Pl (Temp) | 259              |    41.9146 |    -87.668 |  41.9185 | -87.6974 | casual         |
-| E14E9E37AD877B95 | docked\_bike   | 2020-04-25 13:32:35 UTC | 2020-04-25 13:46:59 UTC | Walsh Park           | 628                | California Ave & Francis Pl (Temp) | 259              |    41.9146 |    -87.668 |  41.9185 | -87.6974 | casual         |
-| 915EAAD3924C4921 | docked\_bike   | 2020-04-11 15:05:47 UTC | 2020-04-11 15:23:24 UTC | Walsh Park           | 628                | California Ave & North Ave         | 276              |    41.9146 |    -87.668 |  41.9104 | -87.6972 | casual         |
-
-``` r
-length(unique(data$ride_id))
-```
+| ride_id          | rideable_type | started_at              | ended_at                | start_station_name | start_station_id | end_station_name                   | end_station_id | start_lat | start_lng | end_lat |  end_lng | member_casual |
+|:-----------------|:--------------|:------------------------|:------------------------|:-------------------|:-----------------|:-----------------------------------|:---------------|----------:|----------:|--------:|---------:|:--------------|
+| CFB93A48F8739A87 | docked_bike   | 2020-04-26 13:05:31 UTC | 2020-04-26 13:19:47 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
+| 57350116454F657E | docked_bike   | 2020-04-27 13:03:24 UTC | 2020-04-27 13:16:12 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
+| F244A35DC2995411 | docked_bike   | 2020-04-05 13:08:30 UTC | 2020-04-05 13:23:32 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
+| AF097D79FD811EC8 | docked_bike   | 2020-04-18 13:26:42 UTC | 2020-04-18 13:42:45 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
+| E14E9E37AD877B95 | docked_bike   | 2020-04-25 13:32:35 UTC | 2020-04-25 13:46:59 UTC | Walsh Park         | 628              | California Ave & Francis Pl (Temp) | 259            |   41.9146 |   -87.668 | 41.9185 | -87.6974 | casual        |
+| 915EAAD3924C4921 | docked_bike   | 2020-04-11 15:05:47 UTC | 2020-04-11 15:23:24 UTC | Walsh Park         | 628              | California Ave & North Ave         | 276            |   41.9146 |   -87.668 | 41.9104 | -87.6972 | casual        |
 
     ## [1] 2794093
 
-``` r
-unique(data$rideable_type)
-```
-
     ## [1] "docked_bike"   "electric_bike" "classic_bike"
-
-``` r
-length(unique(data$start_station_name))
-```
 
     ## [1] 701
 
-``` r
-length(unique(data$start_station_id))
-```
-
     ## [1] 1256
-
-``` r
-length(unique(data$end_station_name))
-```
 
     ## [1] 703
 
-``` r
-length(unique(data$end_station_id))
-```
-
     ## [1] 1257
-
-``` r
-unique(data$member_casual)
-```
 
     ## [1] "casual" "member"
 
 Nothing changed except as expected the total amount of rides decreased ,
 which means that we can run the rest of the code.
 
-``` r
-data$start_date<-ymd_hms(data$started_at) # so it is usable as yyyy-mm-dd hh:mm:ss
-data$end_date<-ymd_hms(data$ended_at)
-data$ride_length<-round(difftime(data$end_date,data$start_date, units = "min")) #creating the difference in minutes
-#getting rid of the negative numbers
-data <- filter(data, ride_length > -0.01)
-data <- filter(data, start_station_name!=end_station_name)
-
-## combining classic and docked
-data$rt<-NA
-data$rt[data$rideable_type=="docked_bike"]<-"classic_bike"
-data$rt[data$rideable_type=="classic_bike"]<-"classic_bike"
-data$rt[data$rideable_type=="electric_bike"]<-"electric_bike"
-data$rideable_type=data$rt
-data=subset(data, select = -c(rt) )
-#splitting the data into 2 data frames
-data_casual              <-subset(data, member_casual=="casual")
-data_casual_electric_bike<-subset(data_casual, rideable_type=="electric_bike")
-data_casual_classic_bike <-subset(data_casual, rideable_type=="classic_bike")
-data_member              <-subset(data, member_casual=="member")
-data_member_electric_bike<-subset(data_member, rideable_type=="electric_bike")
-data_member_classic_bike <-subset(data_member, rideable_type=="classic_bike")
-cat("These are the casual riders electric bike\n start stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders electric bike
     ##  start stations
-
-``` r
-describe(data_casual_electric_bike$start_station_name)
-```
 
     ## data_casual_electric_bike$start_station_name 
     ##        n  missing distinct 
@@ -590,16 +358,10 @@ describe(data_casual_electric_bike$start_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the casual riders electric bike\n end stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders electric bike
     ##  end stations
-
-``` r
-describe(data_casual_electric_bike$end_station_name)
-```
 
     ## data_casual_electric_bike$end_station_name 
     ##        n  missing distinct 
@@ -608,16 +370,10 @@ describe(data_casual_electric_bike$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the casual riders electric bike\n ride length \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders electric bike
     ##  ride length
-
-``` r
-stat.desc(data_casual_electric_bike$ride_length)
-```
 
     ##                             x
     ## nbr.val       108052.00000000
@@ -635,16 +391,10 @@ stat.desc(data_casual_electric_bike$ride_length)
     ## std.dev           19.34476867
     ## coef.var           1.01035760
 
-``` r
-cat("These are the casual riders classic bike\n start stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders classic bike
     ##  start stations
-
-``` r
-describe(data_casual_classic_bike$start_station_name)
-```
 
     ## data_casual_classic_bike$start_station_name 
     ##        n  missing distinct 
@@ -653,16 +403,10 @@ describe(data_casual_classic_bike$start_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the casual riders classic bike\n end stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders classic bike
     ##  end stations
-
-``` r
-describe(data_casual_classic_bike$end_station_name)
-```
 
     ## data_casual_classic_bike$end_station_name 
     ##        n  missing distinct 
@@ -671,16 +415,10 @@ describe(data_casual_classic_bike$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the casual riders classic bike\n ride length \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the casual riders classic bike
     ##  ride length
-
-``` r
-stat.desc(data_casual_classic_bike$ride_length)
-```
 
     ##                             x
     ## nbr.val        811958.0000000
@@ -698,16 +436,10 @@ stat.desc(data_casual_classic_bike$ride_length)
     ## std.dev           449.1770502
     ## coef.var            9.9177225
 
-``` r
-cat("These are the member electric bike\n start stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member electric bike
     ##  start stations
-
-``` r
-describe(data_member_electric_bike$start_station_name)
-```
 
     ## data_member_electric_bike$start_station_name 
     ##        n  missing distinct 
@@ -716,16 +448,10 @@ describe(data_member_electric_bike$start_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the member electric bike\n end stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member electric bike
     ##  end stations
-
-``` r
-describe(data_member_electric_bike$end_station_name)
-```
 
     ## data_member_electric_bike$end_station_name 
     ##        n  missing distinct 
@@ -734,16 +460,10 @@ describe(data_member_electric_bike$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the member electric bike\n ride length \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member electric bike
     ##  ride length
-
-``` r
-stat.desc(data_member_electric_bike$ride_length)
-```
 
     ##                             x
     ## nbr.val       193653.00000000
@@ -761,16 +481,10 @@ stat.desc(data_member_electric_bike$ride_length)
     ## std.dev           12.52195158
     ## coef.var           0.99032044
 
-``` r
-cat("These are the member classic bike\n start stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member classic bike
     ##  start stations
-
-``` r
-describe(data_member_classic_bike$start_station_name)
-```
 
     ## data_member_classic_bike$start_station_name 
     ##        n  missing distinct 
@@ -779,16 +493,10 @@ describe(data_member_classic_bike$start_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the member classic bike\n end stations \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member classic bike
     ##  end stations
-
-``` r
-describe(data_member_classic_bike$end_station_name)
-```
 
     ## data_member_classic_bike$end_station_name 
     ##        n  missing distinct 
@@ -797,16 +505,10 @@ describe(data_member_classic_bike$end_station_name)
     ## lowest : 2112 W Peterson Ave          63rd St Beach                900 W Harrison St            Aberdeen St & Jackson Blvd   Aberdeen St & Monroe St     
     ## highest: Wood St & Taylor St (Temp)   Woodlawn Ave & 55th St       Woodlawn Ave & 75th St       Woodlawn Ave & Lake Park Ave Yates Blvd & 75th St
 
-``` r
-cat("These are the member classic bike\n ride length \n\n\n\n")
-```
-
+    ## 
+    ## 
     ## These are the member classic bike
     ##  ride length
-
-``` r
-stat.desc(data_member_classic_bike$ride_length)
-```
 
     ##                              x
     ## nbr.val       1364138.00000000
@@ -832,413 +534,48 @@ Since it would be very unlikely that they are using 1 bike for that
 long. Unfortunately there is no way of seeing if there was a complaint
 about unable to dock a bike.
 
-``` r
-#first boxplot 
-fig1<-ggplot(data_casual, aes( y = ride_length, x = rideable_type, fill=rideable_type)) +            # Applying ggplot function
-  geom_boxplot() +
-  ggtitle("Casual Riders") +# for the main title
-  xlab("types of bikes") +# for the x axis label
-  ylab("Bike ride in minutes")+ 
-  scale_fill_discrete(name = "Type of bike", labels = c("Classic", "Electric"))
-fig2<-ggplot(data_member, aes( y = ride_length, x = rideable_type, fill=rideable_type)) +            # Applying ggplot function
-  geom_boxplot()+
-  ggtitle("Members") +# for the main title
-  xlab("types of bikes") +# for the x axis label
-  ylab("Bike ride in minutes")+ 
-  scale_fill_discrete(name = "Type of bike", labels = c("Classic", "Electric"))
+![](README_files/figure-gfm/looking%20at%20the%20data%20separated-1.png)<!-- -->![](README_files/figure-gfm/looking%20at%20the%20data%20separated-2.png)<!-- -->![](README_files/figure-gfm/looking%20at%20the%20data%20separated-3.png)<!-- -->
 
+# Back to the questions:
 
-# outliers_c_cb <- boxplot(data_casual_classic_bike$ride_length, plot=FALSE)$out #cb=classic bike
-# outliers_c_cb <- data_casual_classic_bike[which(data_casual_classic_bike$ride_length %in% outliers_c_cb),]
-# data_casual <-data_casual[-which(data_casual$ride_id %in% outliers_c_cb$ride_id),]
-# 
-# outliers_c_eb <- boxplot(data_casual_electric_bike$ride_length, plot=FALSE)$out #eb=electric bike
-# outliers_c_eb <- data_casual_electric_bike[which(data_casual_electric_bike$ride_length %in% outliers_c_eb),]
-# data_casual <-data_casual[-which(data_casual$ride_id %in% outliers_c_eb$ride_id),]
-# 
-# outliers_m_cb <- boxplot(data_member_classic_bike$ride_length, plot=FALSE)$out #cb=classic bike
-# outliers_m_cb <- data_member_classic_bike[which(data_member_classic_bike$ride_length %in% outliers_m_cb),]
-# data_member<-data_member[-which(data_member$ride_id %in% outliers_m_cb$ride_id),]
-# 
-# outliers_m_eb <- boxplot(data_member_electric_bike$ride_length, plot=FALSE)$out #eb=electric bike
-# outliers_m_eb <- data_member_electric_bike[which(data_member_electric_bike$ride_length %in% outliers_m_eb),]
-# data_member <-data_member[-which(data_member$ride_id %in% outliers_m_eb$ride_id),]
+1.  split the data in 2 groups see if there are different averages
+    -   We see that there are both groups have very different means,
+        this tells us something about that members use the bikes for
+        shorter trips (median).
+2.  see if there is something that is the difference that causes people
+    to be in one group or another
+3.  not sure if answerable with the current data.
 
-
-data <- filter(data, ride_length < 720)#720=12hoursx60=amount of minutes in 12 hours
-#splitting the data into 2 data frames
-data_casual              <-subset(data, member_casual=="casual")
-data_casual_electric_bike<-subset(data_casual, rideable_type=="electric_bike")
-data_casual_classic_bike <-subset(data_casual, rideable_type=="classic_bike")
-data_member              <-subset(data, member_casual=="member")
-data_member_electric_bike<-subset(data_member, rideable_type=="electric_bike")
-data_member_classic_bike <-subset(data_member, rideable_type=="classic_bike")
-#second boxplot 
-fig3<-ggplot(data_casual, aes( y = ride_length, x = rideable_type, fill=rideable_type)) +            # Applying ggplot function
-  geom_violin() +
-  geom_boxplot(width=0.1)+
-  ylim(0, 45)+
-  theme(axis.text.x = element_blank())+
-  ggtitle("Casual Riders") +# for the main title
-  xlab("types of bikes") +# for the x axis label
-  ylab("Bike ride in minutes")+ 
-  scale_fill_discrete(name = "Type of bike", labels = c("Classic", "Electric"))
-fig4<-ggplot(data_member, aes( y = ride_length, x = rideable_type, fill=rideable_type)) +            # Applying ggplot function
-  geom_violin()+
-  ylim(0, 45)+
-  geom_boxplot(width=0.1)+
-  theme(axis.text.x = element_blank())+
-  ggtitle("Members") +# for the main title
-  xlab("types of bikes") +# for the x axis label
-  ylab("Bike ride in minutes") + 
-  scale_fill_discrete(name = "Type of bike", labels = c("Classic", "Electric"))
-
-
-grid.arrange(fig1, fig2,ncol=2,top="Comparing both groups \nincluding 12+ hour bike rides")
-```
-
-    ## Don't know how to automatically pick scale for object of type difftime. Defaulting to continuous.
-    ## Don't know how to automatically pick scale for object of type difftime. Defaulting to continuous.
-
-![](README_files/figure-gfm/looking%20at%20the%20data%20separated-1.png)<!-- -->
-
-``` r
-grid.arrange(fig3, fig4,ncol=2,top="Comparing both groups \nexcluding 12+ hour bike rides")
-```
-
-    ## Warning: Removed 149268 rows containing non-finite values (stat_ydensity).
-
-    ## Warning: Removed 149268 rows containing non-finite values (stat_boxplot).
-
-    ## Warning: Removed 26744 rows containing non-finite values (stat_ydensity).
-
-    ## Warning: Removed 26744 rows containing non-finite values (stat_boxplot).
-
-![](README_files/figure-gfm/looking%20at%20the%20data%20separated-2.png)<!-- -->
-\# Back to the questions: 1. split the data in 2 groups see if there are
-different averages a. We see that there are both groups have very
-different means, this tells us something about that members use the
-bikes for shorter trips (median). 2. see if there is something that is
-the difference that causes people to be in one group or another 3. not
-sure if answerable with the current data.
-
-# creating a map
+# Creating a map
 
 first things to do is create separate data structures for different
 `rideable_types` second thing plot it by month (it probably will take
 way too long if it’s in one go, and it makes it updateable)
 
-``` r
-## Make sure to register and activate the google maps key 
-#register_google(key = "xxx", write = TRUE) #(replaced it with xxx since it's personal)
-map_ch <-get_map("chicago illinois", zoom = 12,maptype = 'satellite')
-```
+![](README_files/figure-gfm/plotting%20out%20map-1.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-2.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-3.png)<!-- -->![](README_files/figure-gfm/plotting%20out%20map-4.png)<!-- -->
 
-    ## Source : https://maps.googleapis.com/maps/api/staticmap?center=chicago%20illinois&zoom=12&size=640x640&scale=2&maptype=satellite&language=en-EN&key=xxx
+While these maps could be great for social media to show how much
+stations there are or how across the city people are using the bikes, it
+doesn’t show a clear difference in group.
 
-    ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=chicago+illinois&key=xxx
+## Bike usage across a year
 
-``` r
-#creating individual maps
-#classic 
-fig5<-ggmap(map_ch) +
-  stat_density2d(data = data_casual_classic_bike, aes(x = start_lng, y = start_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+
-  labs(title = str_c('start point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-fig6<-ggmap(map_ch) +
-  stat_density2d(data = data_casual_classic_bike, aes(x = end_lng, y = end_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('end point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-#electric
-fig7<-ggmap(map_ch) +
-  stat_density2d(data = data_casual_electric_bike, aes(x = start_lng, y = start_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('start point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-fig8<-ggmap(map_ch) +
-  stat_density2d(data = data_casual_electric_bike, aes(x = end_lng, y = end_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('end point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-## same for the other group
-#clasic 
-fig9<-ggmap(map_ch) +
-  stat_density2d(data = data_member_classic_bike, aes(x = start_lng, y = start_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+
-  labs(title = str_c('start point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-fig10<-ggmap(map_ch) +
-  stat_density2d(data = data_member_classic_bike, aes(x = end_lng, y = end_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('end point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-#electric
-fig11<-ggmap(map_ch) +
-  stat_density2d(data = data_member_electric_bike, aes(x = start_lng, y = start_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('start point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-fig12<-ggmap(map_ch) +
-  stat_density2d(data = data_member_electric_bike, aes(x = end_lng, y = end_lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5)+
-  scale_fill_viridis(option = 'inferno')+
-  scale_fill_viridis_c(limits = c(0, 1000))+  
-  labs(title = str_c('end point'))+
-  theme(text = element_text(color = "#444444")
-        ,plot.title = element_text(size = 12, face = 'bold')
-        ,plot.subtitle = element_text(size = 12)
-        ,axis.text = element_blank()
-        ,axis.title = element_blank()
-        ,axis.ticks = element_blank()
-        ) +
-  guides(fill = guide_legend(override.aes= list(alpha = 1)))
-```
-
-    ## Scale for 'fill' is already present. Adding another scale for 'fill', which
-    ## will replace the existing scale.
-
-``` r
-#plotting them
-grid.arrange(fig5, fig6, ncol=2,top=textGrob("Casual Riders, classic bikes heatmap", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## Warning: Removed 81975 rows containing non-finite values (stat_density2d).
-
-    ## Warning: Removed 82114 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20out%20map-1.png)<!-- -->
-
-``` r
-grid.arrange(fig7, fig8, ncol=2,top=textGrob("Casual Riders, Electric bikes heatmap", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## Warning: Removed 10957 rows containing non-finite values (stat_density2d).
-
-    ## Warning: Removed 11354 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20out%20map-2.png)<!-- -->
-
-``` r
-grid.arrange(fig9, fig10, ncol=2,top=textGrob("Members, classic bikes heatmap", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## Warning: Removed 149653 rows containing non-finite values (stat_density2d).
-
-    ## Warning: Removed 150336 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20out%20map-3.png)<!-- -->
-
-``` r
-grid.arrange(fig11, fig12, ncol=2,top=textGrob("Members, Electric bikes heatmap", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## Warning: Removed 21023 rows containing non-finite values (stat_density2d).
-
-    ## Warning: Removed 21528 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20out%20map-4.png)<!-- --> The last
-thing we want to look at is if either group changes their use of the
-bikes over the course of the year For this we plot the data as a
+The last thing we want to look at is if either group changes their use
+of the bikes over the course of the year For this we plot the data as a
 function of time and keep it divided by group
-
-``` r
-#first organize date by month 
-data_casual$start_date<-as.Date(data_casual$start_date,format="%Y-%m-%d")
-data_casual$ones<-1
-data_casual_grouped <- data_casual %>%
-  group_by(start_date, rideable_type) %>%
-  summarise(ones=sum(ones))
-```
-
-    ## `summarise()` has grouped output by 'start_date'. You can override using the `.groups` argument.
-
-``` r
-data_member$start_date<-as.Date(data_member$start_date,format="%Y-%m-%d")
-data_member$ones<-1
-data_member_grouped <- data_member %>%
-  group_by(start_date, rideable_type) %>%
-  summarise(ones=sum(ones))
-```
-
-    ## `summarise()` has grouped output by 'start_date'. You can override using the `.groups` argument.
-
-``` r
-fig17<- ggplot(data=data_casual_grouped, aes(x=start_date, y=ones, color=rideable_type))+
-  labs(x = "Time", y = "Amount of rides", title = "Casual Riders", color="Types of Bikes") +
-  geom_point()+
-  geom_smooth()+
-  ylim(0,10000)+
-  scale_color_manual(labels = c("Classic bike", "Electric Bike"), values = c("green", "red", "blue"))
-
-
-fig18<- ggplot(data=data_member_grouped, aes(x=start_date, y=ones, color=rideable_type))+
-    labs(x = "Time", y = "Amount of rides", title = "Members", color="Types of Bikes") +
-  geom_point()+
-  geom_smooth()+
-  ylim(0,10000)+
-  scale_color_manual(labels = c("Classic bike", "Electric Bike"), values = c("green", "red", "blue"))
-
-grid.arrange(fig17,fig18,top=textGrob("Amount of rides per date", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-    ## Warning: Removed 7 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 7 rows containing missing values (geom_point).
-
-    ## Warning: Removed 3 rows containing missing values (geom_smooth).
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-    ## Warning: Removed 7 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 7 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_smooth).
 
 ![](README_files/figure-gfm/by%20time%202-1.png)<!-- -->
 
-# answering questions
+# Answering questions
 
 1.  How do annual members and casual riders use Cyclistic bikes
     differently? From what I see this has mainly to do with ride length.
     Where as the members (surprisingly?) use the bike for less longer
     distances as you can see here:
 
-``` r
-grid.arrange(fig3, fig4,ncol=2,top=textGrob("Median ride length in minutes by bike type", gp=gpar(fontsize=20,font=1)))
-```
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
-    ## Warning: Removed 149268 rows containing non-finite values (stat_ydensity).
-
-    ## Warning: Removed 149268 rows containing non-finite values (stat_boxplot).
-
-    ## Warning: Removed 26744 rows containing non-finite values (stat_ydensity).
-
-    ## Warning: Removed 26744 rows containing non-finite values (stat_boxplot).
-
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- --> they seem to
-use them more often, as you can see here:
-
-``` r
-grid.arrange(fig17,fig18,top=textGrob("Amount of rides per date", gp=gpar(fontsize=20,font=8)))
-```
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-    ## Warning: Removed 7 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 7 rows containing missing values (geom_point).
-
-    ## Warning: Removed 3 rows containing missing values (geom_smooth).
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-    ## Warning: Removed 7 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 7 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_smooth).
+they seem to use them more often, as you can see here:
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
@@ -1246,40 +583,16 @@ When looking at location we do not see a relevant difference between the
 two groups we see both groups pretty much spread out around Chicago in
 the same way.
 
-``` r
-fig5 + labs(title = str_c('Casual Riders'))
-```
+![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-1.png)<!-- -->![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-2.png)<!-- -->![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-3.png)<!-- -->
 
-    ## Warning: Removed 81975 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-1.png)<!-- -->
-
-``` r
-fig9 + labs(title = str_c('Members'))
-```
-
-    ## Warning: Removed 149653 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-2.png)<!-- -->
-
-``` r
-grid.arrange(fig7, fig9,ncol=2,top=textGrob("Start points across Chicago", gp=gpar(fontsize=20,font=1)))
-```
-
-    ## Warning: Removed 10957 rows containing non-finite values (stat_density2d).
-
-    ## Warning: Removed 149653 rows containing non-finite values (stat_density2d).
-
-![](README_files/figure-gfm/plotting%20casual%20and%20members%20docked%20bike%20location%20in%20a%20heatmap-3.png)<!-- -->
-
-2.  Why would casual riders buy Cyclistic annual memberships? I’d argue
+1.  Why would casual riders buy Cyclistic annual memberships? I’d argue
     that there is a point to be made that if people figure out how easy
     and usefull/healty it can be to take the bike, they might opt for a
     membership. Since members use bike on average for smaller distances,
     this could relate to how easy it is to use and how it can increase
     ones mobility.
-3.  How can Cyclistic use digital media to influence casual riders to
-    become members?  
+2.  How can Cyclistic use digital media to influence casual riders to
+    become members?
 
 -   They can use the heat maps showing in a cool way how people across
     the city of Chicago are using bikes everywhere.
@@ -1293,3 +606,5 @@ grid.arrange(fig7, fig9,ncol=2,top=textGrob("Start points across Chicago", gp=gp
 The data is missing for september 2020, since the excel file is corrupt.
 There is unfortunatly no way to deal with that, since it’s an corruption
 before the data was uploaded.
+
+# For the code [click here](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/code.R)
