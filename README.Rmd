@@ -1,8 +1,8 @@
 ---
 title: 'Case Study: Cyclistic a bike share company. Using R'
 author: "Douwe John Horsthuis"
-date: "5/16/2022"
-output: html_document
+date: "6/5/2022"
+output: github_document 
 ---
 
 ```{r setup, include=FALSE}
@@ -45,32 +45,32 @@ library(viridis)#colors for heat map
 It's possible to get the dataset directly from google's bigquery. Using the code below. However I personally prefer using the csv file. So 
 
 ```{r using sql to load data, eval=FALSE, include=FALSE}
-db <- dbConnect(
-  bigquery(), 
-  dataset = 'cyclistic-a-bike-share-company.bikedata.combined data', 
-  project = 'cyclistic-a-bike-share-company', 
-  use_legacy_sql = FALSE
-)
-```
-```{sql eval=FALSE, connection=db, include=FALSE, output.var=}
---# Store the project ID
-projectid = "cyclistic-a-bike-share-company"
-
---# Set your query
-sql <- SELECT * FROM "cyclistic-a-bike-share-company.bikedata.combined data"
-
---# Run the query and store the data in a tibble
-tb <- bq_project_query(projectid, sql)
-
---# Print 10 rows of the data
-bq_table_download(tb, n_max = 10)
+# db <- dbConnect(
+#   bigquery(), 
+#   dataset = 'cyclistic-a-bike-share-company.bikedata.combined data', 
+#   project = 'cyclistic-a-bike-share-company', 
+#   use_legacy_sql = FALSE
+# )
+# ```
+# ```{sql eval=FALSE, connection=db, include=FALSE, output.var=}
+# --# Store the project ID
+# projectid = "cyclistic-a-bike-share-company"
+# 
+# --# Set your query
+# sql <- SELECT * FROM "cyclistic-a-bike-share-company.bikedata.combined data"
+# 
+# --# Run the query and store the data in a tibble
+# tb <- bq_project_query(projectid, sql)
+# 
+# --# Print 10 rows of the data
+# bq_table_download(tb, n_max = 10)
 ```
 
 ```{r Loading csv file, include=FALSE}
 data    <- read_csv("data/sql_query_all.csv")
 ```
 
-```{r first look at the data, echo=TRUE, results=}
+```{r first look at the data}
 kable(head(data))
 length(unique(data$ride_id))
 unique(data$rideable_type)
@@ -191,7 +191,7 @@ data    <- read_csv("data/sql_query_all_updated.csv")
 
 
 
-```{r first look at the updated data, eval=FALSE, include=FALSE, results=}
+```{r first look at the updated data}
 kable(head(data))
 length(unique(data$ride_id))
 unique(data$rideable_type)
