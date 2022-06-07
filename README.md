@@ -14,27 +14,30 @@ Cyclistic, and I will try to answer questions based on their openly
 available data that can be found
 [here](https://divvy-tripdata.s3.amazonaws.com/index.html)
 
-## steps taken before this using R
+## Steps taken before this using R
 
 1.  download the last 12 months worth of data
 
-2.  unzip all the excel files so they can be uploaded into an sql
+2.  unzip all the excel files so they can be uploaded into an SQL
     database (bigquery)
 
 3.  202009-divvy-tripdata does not work
 
-4.  realized it doesn’t work quickly so instead use google drive to
+4.  realized it doesn’t work quickly so instead use Google drive to
     upload it both for space purposes and speed
 
-5.  create a sql statement to get the data
+5.  create a SQL statement to get the data
 
 6.  made sure that old and new data have the same data types by updating
-    the old datatypes so that new datasets can be added easily.
+    the old datatypes so that new data sets can be added easily.
+
+[**This query can be found here in
+BigQuery**](https://console.cloud.google.com/bigquery?sq=305573351494:ddd1f3a16d2b4b27b43887c0db15d4bb)
 
 [**The R code can be found
 here**](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/code.R)
 
-It’s possible to get the dataset directly from google’s bigquery.
+It’s possible to get the dataset directly from Google’s bigquery.
 However I personally prefer using the csv file. So that is what the code
 uses.
 
@@ -98,7 +101,7 @@ transportation “docked_bike” “electric_bike” “classic_bike”. We know
 that
 `length(unique(data$start_station_name))==length(unique(data$end_station_name))`==705
 , but that both f0 and f1 are not the same length and not the same as
-eachother. Because of the we leave the ID alone
+each other. Because of the we leave the ID alone
 
 # Questions about the data
 
@@ -124,7 +127,7 @@ create 2 subgroups.
 2.  there is no ride length
 3.  TBD
 
-## describing the data after creating the 2 groups
+## Describing the data after creating the 2 groups
 
     ## 
     ## 
@@ -233,7 +236,7 @@ create 2 subgroups.
 4.  the mean (11.2/44.34) and median (12/22) are very different for
     (members/casual)
 
-## Next we are looking how much tripes each group made
+## Next we are looking how much trips each group made
 
 ![](README_files/figure-gfm/by%20time-1.png)<!-- -->
 
@@ -261,12 +264,14 @@ station. In this case, it might be people who had an issue with the bike
 or for whatever reason didn’t end up taking it. Since these people won’t
 give us insight in the behavior of both groups we also get rid of them.
 
-Found a mistake, a lot of the extreme values did not have an end station
-but did have a start station. This meant that I made a mistake in the
-SQL query I originally did. Because of that, I reviewed the code and
-found the mistake, and fixed it. Because of that we are reloading the
-data and running all the cleaning code we created again. We use
-`rm(list = ls())` for the cleaning so we do not need to reinstall the
+# Mistake 1 restart
+
+I found a mistake, a lot of the extreme values did not have an end
+station but did have a start station. This meant that I made a mistake
+in the SQL query I originally did. Because of that, I reviewed the code
+and found the mistake, and fixed it. Because of that we are reloading
+the data and running all the cleaning code we created again. We use
+`rm(list = ls())` for the cleaning so we do not need to re-install the
 packages
 
 | ride_id          | rideable_type | started_at              | ended_at                | start_station_name | start_station_id | end_station_name                   | end_station_id | start_lat | start_lng | end_lat |  end_lng | member_casual |
@@ -547,7 +552,7 @@ both types of bikes.
 
 # Answering questions
 
-1.  How do annual members and casual riders use Cyclistic bikes
+1.  How do annual members and casual riders use Cyclist bikes
     differently? From what I see this has mainly to do with ride length.
     Where as the members (surprisingly?) use the bike for less longer
     distances as you can see here:
@@ -566,7 +571,7 @@ the same way.
 
 1.  Why would casual riders buy Cyclistic annual memberships? I’d argue
     that there is a point to be made that if people figure out how easy
-    and usefull/healty it can be to take the bike, they might opt for a
+    and useful/healthy it can be to take the bike, they might opt for a
     membership. Since members use bike on average for smaller distances,
     this could relate to how easy it is to use and how it can increase
     ones mobility.
@@ -578,12 +583,12 @@ the same way.
 -   They can focus on how after using it once and experiencing how easy
     it is, that using it for picking up groceries, going to a friend, or
     in short using it in daily life for short distances would make life
-    more eco friendly, easier, healthier and cheaper.
+    more eco-friendly, easier, healthier and cheaper.
 
 # disclaimer
 
-The data is missing for september 2020, since the excel file is corrupt.
-There is unfortunatly no way to deal with that, since it’s an corruption
-before the data was uploaded.
+The data is missing for September 2020, since the excel file is corrupt.
+There is unfortunately no way to deal with that, since it’s an
+corruption before the data was uploaded.
 
 # For the code [click here](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/code.R)
