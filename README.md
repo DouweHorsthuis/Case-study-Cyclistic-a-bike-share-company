@@ -1,11 +1,12 @@
 Case Study: Cyclistic a bike share company. Using R
 ================
 Douwe John Horsthuis
-6/5/2022
+6/6/2022
 
 # Cyclistic bike-share
 
-![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/logo.PNG)
+![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/README_files/figure-gfm/logo.PNG)
+
 
 ## Case study by [Douwe Horsthuis](https://github.com/DouweHorsthuis) for the Google Data Analytics Capstone
 
