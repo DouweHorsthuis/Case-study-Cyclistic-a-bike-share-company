@@ -5,9 +5,9 @@ Douwe John Horsthuis
 
 # Cyclistic bike-share
 
-![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/logo.PNG)
-![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/coursera.JPG)
-![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/images/google.JPG)
+![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/README_files/figure-gfm/logo.PNG)
+![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/README_files/figure-gfm/coursera.JPG)
+![](https://github.com/DouweHorsthuis/Case-study-Cyclistic-a-bike-share-company/blob/main/README_files/figure-gfm/google.JPG)
 
 ## Case study by [Douwe Horsthuis](https://github.com/DouweHorsthuis) for the [Google Data Analytics Capstone](https://www.coursera.org/professional-certificates/google-data-analytics)
 
